@@ -87,12 +87,14 @@ sub_a:
     jal sub_b
 
 
+
     
 sub_b:
     # sub b is supposed to have memory address of substring
     # do cal culations and return decimal/error message
     move $s4, $a0
     j findLength
+    jr $ra
 
 findLength:
       lb $s6 0($s4)
@@ -122,7 +124,8 @@ exponent:
       sub $t2, $t4, 1 # the first char exponent is length of char - 1
       # lb $s6 0($a3) # load  char into $s6
       jal charcheck
-      j print
+      # j print
+      jr $ra
 charcheck:
       lb $s6, 0($a3)
       # addi $s2, $s2, 1

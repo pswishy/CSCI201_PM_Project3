@@ -58,16 +58,53 @@ sub_a:
     j exit
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
-    # bgt $t0, 4, codetesting
+    move $s3, $a0
+    j findLength
     lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
-    # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring 
+    # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
+       blt $s6, 48, errorMessage # 48 = '0' in ascii. if char < 48 print error 
+       ble $s6, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
+
+       blt $s6, 65, errorMessage # 65 = 'A' in ascii. if char < 65 print error
+       ble $s6, 88, capitalCalc # 88 = 'X' in ascii. if char <= 88 do math
+
+       blt $s6, 97, errorMessage # 'a' = 97 in ascii. if char < 97 skip it
+       ble $s6, 120, lowerCalc # 'x' in ascii = 120. if char <= 120 add it to sum
+       bgt $s6, 120, errorMessage
+
+
     jr $ra
 
-# substringToLong:
+findLength:
+      lb $s6 0($s3)
+      beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
+      beq $s6, 59, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
 
-#    li $v0,0
-#     jr $ra
+      beq $s6, 32, verify # if char is a space character verify if it is apart of input string or trailing white space
+      beq $s6, 9, verify
+      addi $t4, $t4, 1 # add 1 to t4
+      addi $s3, $s3, 1
+      j findLength
 
+verify:
+    beq $t4, 4, exponent # if space is found and legth is already 4 we know it is a trailing whitespace
+    blt $t4, 4, makeSureAllOtherCharsRBlank # if the length of string is less than 4 and i find a space or tab char the char next to it HAS to be another space or it is automatically invalid
+
+makeSureAllOtherCharsRBlank:
+    addi $s3, $s3, 1 # going to check character right next to space char
+    lb $s5, 0($s3) # s5 is new feed s6 is space
+    # sub $a3, $a3, 1 # have to subtract memory address again to keep correct val
+    beq $s5, 32, findLength # if character next to it is space then go back to findlength
+    beq $s5, 9, findLength # if character next to it is space then go back to findlength
+    beq $s5, 10, exponent # if character next to it is space then go back to findlength
+    beq $s5, 59, exponent # if character next to it is space then go back to findlength
+
+    j errorMessage
+exponent:
+      # sub $a3, $a3, $t4 # go back to original memory addres now that we know length of string
+      sub $t2, $t4, 1 # the first char exponent is length of char - 1 # t2 holds exponent val
+      # lb $s6 0($a3) # load  char into $s6
+      jal charcheck
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition
@@ -87,8 +124,9 @@ exit:
       syscall
 
 codetesting:
-    jr $ra
       li $v0, 4
       la $a0, testing
       syscall
+        jr $ra
+
        j exit

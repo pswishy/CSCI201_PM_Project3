@@ -43,3 +43,11 @@ tabOrSpaceCharFound:
       # if it is a tab or space char and len $t0 is 0 then we want to ignore because it is a leading whitespace 
       beq $t0, 0 LeadingWhiteSpaceCounter
       beq $t0, 0, skip # if t0 equals 0 leading whitespace dont update length of userinput string
+
+trailingWhiteSpaceCheck:
+      beq $s1, 9, trailingWhiteSpaceCounter # if the char is a tab we have to give special consideration
+      beq $s1, 32, trailingWhiteSpaceCounter # 32 = space char, 9 = tab char
+      beq $s1, 0, skip # 0 = null char
+      # if after first 4 chars there is any other char go to error and end
+      j errorMessage
+

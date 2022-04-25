@@ -55,7 +55,7 @@ trailingWhiteSpaceCounter:
 
     add $t6, $t6, 1
     j skip
-    
+
 calculateMemoryAdress:
 
      # sub $t5, $t5, 1
@@ -70,7 +70,11 @@ calculateMemoryAdress:
       move $s4, $a3
       # a3 holds memory address argument
       j findLength
-
+trailingWhiteSpaceMemoryAddress:
+    sub $a2, $a2, $t6 # if there is trailing whitespace ned to find correct memory address
+    sub $a3, $a2, 5
+    add $s4, $a3, 0
+    j findLength
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition

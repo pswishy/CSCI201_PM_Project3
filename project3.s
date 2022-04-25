@@ -75,6 +75,15 @@ trailingWhiteSpaceMemoryAddress:
     sub $a3, $a2, 5
     add $s4, $a3, 0
     j findLength
+
+findLength:
+      lb $s6 0($s4)
+      beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
+      beq $s6, 32, verify # if char is a space character verify if it is apart of input string or trailing white space
+      beq $s6, 9, verify
+      addi $t4, $t4, 1 # add 1 to t4
+      addi $s4, $s4, 1
+      j findLength
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition

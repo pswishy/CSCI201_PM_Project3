@@ -44,18 +44,34 @@ subStringFound:
     # sub $a0, $t9, $t2,
     sub $a0, $a2, $t0 # find address of substring we need to substract length of string - number of substraings
     sub $sp, $sp, $t0 # make room on stack
+    sw $ra 0($sp)
+    jal sub_a
     li $t0, 0 # set t0(length) back to 0
     
     # add $t9, $t9, 1 # increment loop address
-    jal sub_a
 # if number of substrings = 0 do what we did project 2
 
 sub_a:
+jal sub_b
 j exit
+
+sub_b:
+jr $ra
+
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition
       j while
+
+print:
+
+    # beq $v1, 0, errorMessage
+ 
+      li $v0, 1
+      addi $a0, $v1, 0
+      syscall
+      j exit
+
 exit:
       li $v0, 10
       syscall

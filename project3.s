@@ -29,6 +29,7 @@ while:
        bgt $t0, 4, trailingWhiteSpaceCheck # after we get first four chars the only other other valid char is a white space char
        beq $s1, 9, tabOrSpaceCharFound # if the char is a tab we have to give special consideration
        beq $s1, 32, tabOrSpaceCharFound # 32 = space char, 9 = tab char
+       # beq $s1, 59, calculateMemoryAdress # if we reach semi colon go to calculate memory addres??
       # if we get here we are at a char and no more leading whitespace
       # ------------------------
       addi $t0,$t0, 1 # increment length of user string by 1
@@ -49,8 +50,9 @@ trailingWhiteSpaceCheck:
       beq $s1, 9, trailingWhiteSpaceCounter # if the char is a tab we have to give special consideration
       beq $s1, 32, trailingWhiteSpaceCounter # 32 = space char, 9 = tab char
       beq $s1, 0, skip # 0 = null char
+      beq $s1, 59, calculateMemoryAdress
       # if after first 4 chars there is any other char go to error and end
-      # j errorMessage
+      j errorMessage
 
 trailingWhiteSpaceCounter:
 
@@ -70,24 +72,51 @@ calculateMemoryAdress:
       sub $a3, $a2, 5
       move $a0, $a3
       # a3 holds memory address argument
-      jal sub_a
+      j sub_a
 trailingWhiteSpaceMemoryAddress:
     sub $a2, $a2, $t6 # if there is trailing whitespace ned to find correct memory address
     sub $a3, $a2, 5
     move $a0 $a3
-    jal sub_a
+    j sub_a
 
 sub_a:
     # a3 has original memory address & t4 has length of string
     # semi colon memory address = a3 + t4
     # if semicolon address > a3 + t4 then we need to jal
     # find memory address of substrings and pass it to sub_b
-    lb $t4 0($a0)
+    jal sub_b
+
 
     
 sub_b:
     # sub b is supposed to have memory address of substring
     # do cal culations and return decimal/error message
+    j findLength
+
+findLength:
+      lb $s6 0($s4)
+      beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
+      beq $s6, 59, exponent # if char equals ; we know how long the string is and do calculations
+      beq $s6, 32, verify # if char is a space character verify if it is apart of input string or trailing white space
+      beq $s6, 9, verify
+      addi $t4, $t4, 1 # add 1 to t4
+      addi $s4, $s4, 1
+      j findLength
+
+verify:
+    beq $t4, 4, exponent # if space is found and legth is already 4 we know it is a trailing whitespace
+    blt $t4, 4, makeSureAllOtherCharsRBlank # if the length of string is less than 4 and i find a space or tab char the char next to it HAS to be another space or it is automatically invalid
+
+makeSureAllOtherCharsRBlank:
+    addi $s4, $s4, 1 # going to check character right next to space char
+    lb $s5, 0($s4) # s5 is new feed s6 is space
+    # sub $a3, $a3, 1 # have to subtract memory address again to keep correct val
+    beq $s5, 32, findLength # if character next to it is space then go back to findlength
+    beq $s5, 9, findLength # if character next to it is space then go back to findlength
+    beq $s5, 10, exponent # if character next to it is space then go back to findlength
+    j errorMessage
+
+
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition

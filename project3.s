@@ -55,6 +55,21 @@ trailingWhiteSpaceCounter:
 
     add $t6, $t6, 1
     j skip
+    
+calculateMemoryAdress:
+
+     # sub $t5, $t5, 1
+      # we need to pass memory address of string to function
+      # memory address stored in $a2
+      # --------------------
+      # move
+      # sub $a3, $a2, 4 # memory address of 4 char str - 5 is now stored in s3 <- correct memory address if no trailing white space
+      bgt $t6, 0, trailingWhiteSpaceMemoryAddress
+
+      sub $a3, $a2, 5
+      move $s4, $a3
+      # a3 holds memory address argument
+      j findLength
 
 skip:
       addi $t9, $t9, 1 # increment loop address for loop

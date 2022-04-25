@@ -81,9 +81,27 @@ findLength:
       beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
       beq $s6, 32, verify # if char is a space character verify if it is apart of input string or trailing white space
       beq $s6, 9, verify
-      addi $t4, $t4, 1 # add 1 to t4
-      addi $s4, $s4, 1
+      beq $s6, 59, sub_a
+      addi $t4, $t4, 1 # add 1 to t4; t4 has length of string
+      addi $s4, $s4, 1 # increment byte address 
       j findLength
+verify:
+    beq $t4, 4, exponent # if space is found and legth is already 4 we know it is a trailing whitespace
+    blt $t4, 4, makeSureAllOtherCharsRBlank # if the length of string is less than 4 and i find a space or tab char the char next to it HAS to be another space or it is automatically invalid
+
+makeSureAllOtherCharsRBlank:
+    addi $s4, $s4, 1 # going to check character right next to space char
+    lb $s5, 0($s4) # s5 is new feed s6 is space
+    # sub $a3, $a3, 1 # have to subtract memory address again to keep correct val
+    beq $s5, 32, findLength # if character next to it is space then go back to findlength
+    beq $s5, 9, findLength # if character next to it is space then go back to findlength
+    beq $s5, 10, exponent # if character next to it is linefeed then go back to exponent
+    j errorMessage
+
+sub_a:
+    # a3 has original memory address & t4 has length of string
+    # semi colon memory address = a3 + t4
+    # if semicolon address > a3 + t4 then we need to jal
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition

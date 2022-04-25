@@ -59,22 +59,33 @@ sub_a:
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
     move $s3, $a0
-    j findLength
+    jal findLength
     lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
-       blt $s6, 48, errorMessage # 48 = '0' in ascii. if char < 48 print error 
-       ble $s6, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
+       blt $s0, 48, codetesting
+       ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
 
-       blt $s6, 65, errorMessage # 65 = 'A' in ascii. if char < 65 print error
-       ble $s6, 88, capitalCalc # 88 = 'X' in ascii. if char <= 88 do math
+       blt $s0, 65, codetesting # 65 = 'A' in ascii. if char < 65 print error
+       ble $s0, 88, capitalCalc # 88 = 'X' in ascii. if char <= 88 do math
 
-       blt $s6, 97, errorMessage # 'a' = 97 in ascii. if char < 97 skip it
-       ble $s6, 120, lowerCalc # 'x' in ascii = 120. if char <= 120 add it to sum
-       bgt $s6, 120, errorMessage
+       blt $s0, 97, codetesting # 'a' = 97 in ascii. if char < 97 skip it
+       ble $s0, 120, lowerCalc # 'x' in ascii = 120. if char <= 120 add it to sum
+       bgt $s0, 120, codetesting
 
 
     jr $ra
+ numCalc:
+       sub $s6, $s6, 48 # if number found update val of char to be - 48
+       j multiplicationloop
 
+ capitalCalc:
+
+    sub $s6, $s6, 55 # if capital letter found subtract val by 55
+    j multiplicationloop
+
+lowerCalc:
+    sub $s6, $s6, 87
+    j multiplicationloop
 findLength:
       lb $s6 0($s3)
       beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use
@@ -99,12 +110,12 @@ makeSureAllOtherCharsRBlank:
     beq $s5, 10, exponent # if character next to it is space then go back to findlength
     beq $s5, 59, exponent # if character next to it is space then go back to findlength
 
-    j errorMessage
+    j codetesting
 exponent:
       # sub $a3, $a3, $t4 # go back to original memory addres now that we know length of string
       sub $t2, $t4, 1 # the first char exponent is length of char - 1 # t2 holds exponent val
       # lb $s6 0($a3) # load  char into $s6
-      jal charcheck
+      jr $ra
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition

@@ -51,3 +51,15 @@ trailingWhiteSpaceCheck:
       # if after first 4 chars there is any other char go to error and end
       j errorMessage
 
+trailingWhiteSpaceCounter:
+
+    add $t6, $t6, 1
+    j skip
+
+skip:
+      addi $t9, $t9, 1 # increment loop address for loop
+      addi $t1, $t1, 1 # increment loop break condition
+      j while
+exit:
+      li $v0, 10
+      syscall

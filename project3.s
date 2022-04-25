@@ -25,6 +25,7 @@ while:
     beq $s1, 32, tabOrSpaceCharFound # 32 = space char, 9 = tab char
       # if we get here we are at a char and no more leading whitespace
     beq $s1, 59, subStringFound
+    beq $s1, 10, exit # line feed char no more printing
     addi $t0,$t0, 1 # increment length of user string by 1
     addi $t1, $t1, 1 # increment loop
     addi $t9, $t9, 1 # increment loop address for loop
@@ -42,26 +43,30 @@ subStringFound:
 
     # sub $a0, $t9, $t2,
     # sub $a0, $a2, $t0 # find address of substring we need to substract length of string - number of substraings
-    # sub $sp, $sp, $t0 # make room on stack
-    # sw $ra 0($sp)
+    sub $sp, $sp, $t0 # make room on stack
+    sw $ra 0($sp)
     jal sub_a
     # ***** dont forget to restore stack *****
+    lw $ra, 0($sp)
+    add $sp, $sp, $t0
     li $t0, 0 # set t0(length) back to 0
-    # lw $ra, 0($sp)
-    # add $sp, $sp, $t0
-    j exit
+    j while
     # add $t9, $t9, 1 # increment loop address
 # if number of substrings = 0 do what we did project 2
 
 sub_a:
     jal sub_b
-    j print
+    jal print
+
+    jr $ra
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
     move $s3, $a0
     # jal findLength
     jal charcheck
 
+    # sum is stored in v1
+    jr $ra
 charcheck:
     lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
@@ -78,25 +83,29 @@ charcheck:
 
     # jr $ra
  numCalc:
-       sub $s6, $s6, 48 # if number found update val of char to be - 48
+       sub $s0, $s0, 48 # if number found update val of char to be - 48
        j multiplicationloop
 
  capitalCalc:
 
-    sub $s6, $s6, 55 # if capital letter found subtract val by 55
+    sub $s0, $s0, 55 # if capital letter found subtract val by 55
     j multiplicationloop
 
 lowerCalc:
-    sub $s6, $s6, 87
+    sub $s0, $s0, 87
     j multiplicationloop
 
  multiplicationloop:
-    bgt $t2, 3, exponentWrong # max exponent val should be 3. so if there are more than 4 chars 
+    bgt $t2, 3, exponentWrong # max exponent val should be 3. so if there are more than 4 chars do math but 
     beq $t2, 3, exponent3 
     beq $t2, 2, exponent2
     beq $t2, 1, exponent1
     beq $t2, 0, exponent0
-exponentWrong:
+exponentWrong: 
+    add $v1, $t8, $s0 # exponent 0 just add char value to sum
+    sub $t2, $t2, 1 # decrement exponent value by 1
+    j increment
+
 exponent3:
       # mul $s7, 33, 33
       # mul $s7, 33, $s7
@@ -105,7 +114,7 @@ exponent3:
       mflo $s7
       mult $t3, $s7
       mflo $s7
-      mult $s6, $s7 # multipy char val * 33^3
+      mult $s0, $s7 # multipy char val * 33^3
       mflo $s7
       add $t8, $t8, $s7
       li $s7, 0
@@ -114,14 +123,14 @@ exponent3:
 exponent2:
       mult $t3, $t3 # t3 is register with base value
       mflo $s7 # 33^2
-      mult $s7, $s6 # have to multiply char value 
+      mult $s7, $s0 # have to multiply char value 
       mflo $s7
       add $t8, $t8, $s7 # add into sum var t8
       li $s7, 0 # set s7 back to zero
       sub $t2, $t2, 1 # decrement exponent value by 1
       j increment
 exponent1:
-      mult $t3, $s6
+      mult $t3, $s0
       # mul $s7, 33, $a3 # if exponent 1 all i have to do is multiply char value by 33
       mflo $s7
       add $t8, $t8, $s7
@@ -129,7 +138,7 @@ exponent1:
       sub $t2, $t2, 1 # decrement exponent value by 1
       j increment
 exponent0:
-      add $v1, $t8, $s6 # exponent 0 just add char value to sum
+      add $v1, $t8, $s0 # exponent 0 just add char value to sum
       # li $s7, 0
       jr $ra
       # j print
@@ -174,13 +183,21 @@ skip:
 
 print:
 
-    # beq $v1, 0, errorMessage
- 
-      li $v0, 1
-      addi $a0, $v1, 0
-      syscall
-      j exit
+    beq $v1, 0, errorMessage
+    bgt $v1, 27931, errorMessage
+    li $v0, 1
+    addi $a0, $v1, 0
+    syscall
+    jr $ra
+    j while
 
+errorMessage:
+
+       # print error message
+       li $v0, 4
+       la $a0, string
+       syscall
+       j exit
 exit:
       li $v0, 10
       syscall

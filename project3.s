@@ -55,11 +55,14 @@ subStringFound:
 
 sub_a:
     jal sub_b
-    j exit
+    j print
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
     move $s3, $a0
-    jal findLength
+    # jal findLength
+    jal charcheck
+
+charcheck:
     lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
        blt $s0, 48, codetesting
@@ -73,7 +76,7 @@ sub_b: # sub b needs to do calculations and return val
        bgt $s0, 120, codetesting
 
 
-    jr $ra
+    # jr $ra
  numCalc:
        sub $s6, $s6, 48 # if number found update val of char to be - 48
        j multiplicationloop
@@ -86,6 +89,54 @@ sub_b: # sub b needs to do calculations and return val
 lowerCalc:
     sub $s6, $s6, 87
     j multiplicationloop
+
+ multiplicationloop:
+    bgt $t2, 3, exponentWrong # max exponent val should be 3. so if there are more than 4 chars 
+    beq $t2, 3, exponent3 
+    beq $t2, 2, exponent2
+    beq $t2, 1, exponent1
+    beq $t2, 0, exponent0
+exponentWrong:
+exponent3:
+      # mul $s7, 33, 33
+      # mul $s7, 33, $s7
+      # mul $s7, $s7, $a3 # multiply a3 char value by 33 * 33 * 33
+      mult $t3, $t3
+      mflo $s7
+      mult $t3, $s7
+      mflo $s7
+      mult $s6, $s7 # multipy char val * 33^3
+      mflo $s7
+      add $t8, $t8, $s7
+      li $s7, 0
+      sub $t2, $t2, 1 # decrement exponent value by 1
+      j increment
+exponent2:
+      mult $t3, $t3 # t3 is register with base value
+      mflo $s7 # 33^2
+      mult $s7, $s6 # have to multiply char value 
+      mflo $s7
+      add $t8, $t8, $s7 # add into sum var t8
+      li $s7, 0 # set s7 back to zero
+      sub $t2, $t2, 1 # decrement exponent value by 1
+      j increment
+exponent1:
+      mult $t3, $s6
+      # mul $s7, 33, $a3 # if exponent 1 all i have to do is multiply char value by 33
+      mflo $s7
+      add $t8, $t8, $s7
+      li $s7, 0
+      sub $t2, $t2, 1 # decrement exponent value by 1
+      j increment
+exponent0:
+      add $v1, $t8, $s6 # exponent 0 just add char value to sum
+      # li $s7, 0
+      jr $ra
+      # j print
+increment:
+      addi $a0, $a0, 1 # increment byte address
+      j charcheck
+
 findLength:
       lb $s6 0($s3)
       beq $s6, 10, exponent # if char equals line feed we know how long the string is so we know what exponent we need to use

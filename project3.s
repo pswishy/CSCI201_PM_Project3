@@ -14,9 +14,10 @@ main:
       # first step count how many chars are in userinput while ignoring blank and space tabs
       li $t0, 0 # t0 = length of user input string
       li $t1, 0 # iterator variable
-      li $t3, 33 # base for my program
+      li $t3, 30 # base for my program
       li $t4, 0 # length counter
       li $t5, 0 # leading white space counter
+      li $t7, 0 # substring var
       li $t8, 0 # sum variable
       la $t9, userInput
 
@@ -67,13 +68,13 @@ calculateMemoryAdress:
       bgt $t6, 0, trailingWhiteSpaceMemoryAddress
 
       sub $a3, $a2, 5
-      move $s4, $a3
+      move $a0, $a3
       # a3 holds memory address argument
       jal sub_a
 trailingWhiteSpaceMemoryAddress:
     sub $a2, $a2, $t6 # if there is trailing whitespace ned to find correct memory address
     sub $a3, $a2, 5
-    add $s4, $a3, 0
+    move $a0 $a3
     jal sub_a
 
 sub_a:
@@ -81,6 +82,8 @@ sub_a:
     # semi colon memory address = a3 + t4
     # if semicolon address > a3 + t4 then we need to jal
     # find memory address of substrings and pass it to sub_b
+    lb $t4 0($a0)
+
     
 sub_b:
     # sub b is supposed to have memory address of substring

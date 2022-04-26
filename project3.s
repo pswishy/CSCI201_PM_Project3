@@ -12,6 +12,7 @@ main:
       syscall
 
       la $t9, userInput
+      li $t3, 30
 
 
 # t0 has num of subtrings
@@ -47,29 +48,32 @@ subStringFound:
     sw $ra 0($sp)
     jal sub_a
     # ***** dont forget to restore stack *****
-    lw $ra, 0($sp)
-    add $sp, $sp, $t0
-    li $t0, 0 # set t0(length) back to 0
-    j while
+    # add $sp, $sp, $t0
+    # li $t0, 0 # set t0(length) back to 0
+    # j whilelw $ra, 0($sp)
+    
     # add $t9, $t9, 1 # increment loop address
 # if number of substrings = 0 do what we did project 2
 
 sub_a:
     jal sub_b
-    jal print
+    j print
 
-    jr $ra
+    # jr $ra
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
     move $s3, $a0
     # jal findLength
-    jal charcheck
+    jal exponent
+    # jal charcheck
+    
 
     # sum is stored in v1
-    jr $ra
+    j print
 charcheck:
-    lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
+       lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
+       beq $s0, 59, exitStack
        blt $s0, 48, codetesting
        ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
 
@@ -80,8 +84,10 @@ charcheck:
        ble $s0, 120, lowerCalc # 'x' in ascii = 120. if char <= 120 add it to sum
        bgt $s0, 120, codetesting
 
-
-    # jr $ra
+    # jr $ra # should take us back to 
+exitStack:
+    # should take us back to sub_b when finished
+    jr $ra
  numCalc:
        sub $s0, $s0, 48 # if number found update val of char to be - 48
        j multiplicationloop
@@ -140,7 +146,7 @@ exponent1:
 exponent0:
       add $v1, $t8, $s0 # exponent 0 just add char value to sum
       # li $s7, 0
-      jr $ra
+      # jr $ra
       # j print
 increment:
       addi $a0, $a0, 1 # increment byte address
@@ -173,9 +179,9 @@ makeSureAllOtherCharsRBlank:
     j codetesting
 exponent:
       # sub $a3, $a3, $t4 # go back to original memory addres now that we know length of string
-      sub $t2, $t4, 1 # the first char exponent is length of char - 1 # t2 holds exponent val
+      sub $t2, $t0, 1 # the first char exponent is length of char - 1 # t2 holds exponent val
       # lb $s6 0($a3) # load  char into $s6
-      jr $ra
+      j charcheck
 skip:
       addi $t9, $t9, 1 # increment loop address for loop
       addi $t1, $t1, 1 # increment loop break condition
@@ -184,12 +190,12 @@ skip:
 print:
 
     beq $v1, 0, errorMessage
-    bgt $v1, 27931, errorMessage
+    bgt $v1, 837930, errorMessage
     li $v0, 1
     addi $a0, $v1, 0
     syscall
-    jr $ra
-    j while
+    # jr $ra
+    j exit
 
 errorMessage:
 

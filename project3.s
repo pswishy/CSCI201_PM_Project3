@@ -56,12 +56,13 @@ subStringFound:
 
 sub_a:
     jal sub_b
-    j print
+    j codetesting
 
     # jr $ra
 # t2 will hold length of string
 sub_b: # sub b needs to do calculations and return val
-    move $s3, $a0
+    sub $a2 , $a2, $t0
+    move $s3, $a2
     # jal findLength
     jal exponent
     # after num calculation we come here
@@ -72,7 +73,7 @@ sub_b: # sub b needs to do calculations and return val
     # sum is stored in v1
     j print
 charcheck:
-       lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
+       lb $s0 0($s3) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
        beq $s0, 59, exitStack
        beq $s0, 10, exitStack
@@ -152,7 +153,7 @@ exponent0:
       # jr $ra
       # j print
 increment:
-      addi $a0, $a0, 1 # increment byte address
+      addi $s3, $s3, 1 # increment byte address
       j charcheck
 
 findLength:
@@ -197,14 +198,17 @@ print:
     li $v0, 1
     addi $a0, $v1, 0
     syscall
-    add $t9,$t9, 2 # add two to string to calculate next substring
-    li $t0, 0 # reset length of string to 0
-    li $t8, 0 # reset sum variable
+  
     lw $ra, 0($sp)
     add $sp, $sp, $t0
-    jr $ra
-    # j while
+    # jr $ra
+    
+    add $t9,$t9, 1 # add two to string to calculate next substring
+    li $t0, 0 # reset length of string to 0
+    li $t8, 0 # reset sum variable
+    
 
+    j while
 errorMessage:
 
        # print error message

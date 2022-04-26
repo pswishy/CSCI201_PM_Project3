@@ -40,7 +40,7 @@ LeadingWhiteSpaceCounter:
 tabOrSpaceCharFound:
       # if it is a tab or space char and len $t0 is 0 then we want to ignore because it is a leading whitespace 
       beq $t0, 0 LeadingWhiteSpaceCounter
-      # bgt $t0, 0,  # if t0 equals 0 leading whitespace dont update length of userinput string
+      bgt $t0, 0,  # if t0 equals 0 leading whitespace dont update length of userinput string
       
 subStringFound:
 
@@ -60,7 +60,7 @@ subStringFound:
 
 sub_a:
     jal sub_b
-    j codetesting
+    # j codetesting
 
     # jr $ra
 # t2 will hold length of string
@@ -231,6 +231,14 @@ errorMessage:
        li $v0, 4
        la $a0, string
        syscall
+      add $t9,$t9, 1 # add two to string to calculate next substring
+    li $t0, 0 # reset length of string to 0
+    li $t8, 0 # reset sum variable
+    lb $t6, 0($t9)
+    beq $t6, 10, exit
+    beq $t6, 0, exit
+    bne $t6, 10, printComma
+
        j exit
 exit:
       li $v0, 10

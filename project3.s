@@ -14,6 +14,7 @@ main:
 
       la $t9, userInput
       li $t3, 30
+      li $t7, 4
 
 
 # t0 has num of subtrings
@@ -45,7 +46,9 @@ subStringFound:
 
     # sub $a0, $t9, $t2,
     # sub $a0, $a2, $t0 # find address of substring we need to substract length of string - number of substraings
-    sub $sp, $sp, $t0 # make room on stack
+    mult $t0, $t7 # multiply length of string by 4 to make enough room on stack
+    mflo $s4
+    sub $sp, $sp, $s4 # make room on stack
     sw $ra 0($sp)
     jal sub_a
     # ***** dont forget to restore stack *****
@@ -201,15 +204,17 @@ print:
     syscall
   
     lw $ra, 0($sp)
-    add $sp, $sp, $t0
+    add $sp, $sp, $s4
     # jr $ra
     
     add $t9,$t9, 1 # add two to string to calculate next substring
     li $t0, 0 # reset length of string to 0
     li $t8, 0 # reset sum variable
     lb $t6, 0($t9)
+    beq $t6, 10, exit
     bne $t6, 10, printComma
-    j while
+    # beq $t6, 59, while
+    
 
 printComma:
        li $v0, 4

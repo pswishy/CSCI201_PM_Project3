@@ -26,7 +26,7 @@ while:
     beq $s1, 32, tabOrSpaceCharFound # 32 = space char, 9 = tab char
       # if we get here we are at a char and no more leading whitespace
     beq $s1, 59, subStringFound
-    beq $s1, 10, exit # line feed char no more printing
+    beq $s1, 10, subStringFound # line feed char no more printing
     addi $t0,$t0, 1 # increment length of user string by 1
     addi $t1, $t1, 1 # increment loop
     addi $t9, $t9, 1 # increment loop address for loop
@@ -50,7 +50,6 @@ subStringFound:
     # ***** dont forget to restore stack *****
     # add $sp, $sp, $t0
     # li $t0, 0 # set t0(length) back to 0
-    # j whilelw $ra, 0($sp)
     
     # add $t9, $t9, 1 # increment loop address
 # if number of substrings = 0 do what we did project 2
@@ -66,8 +65,10 @@ sub_b: # sub b needs to do calculations and return val
     # jal findLength
     jal exponent
     # after num calculation we come here
-    
-
+    # add $sp, $sp, $t0
+    # li $t0, 0 # set t0(length) back to 0
+    # lw $ra, 0($sp)
+    # jr $ra
     # sum is stored in v1
     j print
 charcheck:
@@ -75,6 +76,7 @@ charcheck:
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
        beq $s0, 59, exitStack
        beq $s0, 10, exitStack
+
        blt $s0, 48, codetesting
        ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
 
@@ -195,8 +197,13 @@ print:
     li $v0, 1
     addi $a0, $v1, 0
     syscall
-    # jr $ra
-    j exit
+    add $t9,$t9, 2 # add two to string to calculate next substring
+    li $t0, 0 # reset length of string to 0
+    li $t8, 0 # reset sum variable
+    lw $ra, 0($sp)
+    add $sp, $sp, $t0
+    jr $ra
+    # j while
 
 errorMessage:
 

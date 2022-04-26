@@ -82,15 +82,15 @@ charcheck:
        beq $s0, 59, exitStack
        beq $s0, 10, exitStack
 
-       blt $s0, 48, codetesting
+       blt $s0, 48, errorMessage
        ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
 
-       blt $s0, 65, codetesting # 65 = 'A' in ascii. if char < 65 print error
+       blt $s0, 65, errorMessage # 65 = 'A' in ascii. if char < 65 print error
        ble $s0, 88, capitalCalc # 88 = 'X' in ascii. if char <= 88 do math
 
-       blt $s0, 97, codetesting # 'a' = 97 in ascii. if char < 97 skip it
+       blt $s0, 97, errorMessage # 'a' = 97 in ascii. if char < 97 skip it
        ble $s0, 120, lowerCalc # 'x' in ascii = 120. if char <= 120 add it to sum
-       bgt $s0, 120, codetesting
+       bgt $s0, 120, errorMessage
 
     # jr $ra # should take us back to 
 exitStack:
@@ -212,6 +212,8 @@ print:
     li $t8, 0 # reset sum variable
     lb $t6, 0($t9)
     beq $t6, 10, exit
+    beq $t6, 0, exit
+
     bne $t6, 10, printComma
     # beq $t6, 59, while
     

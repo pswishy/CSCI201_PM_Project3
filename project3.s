@@ -65,7 +65,7 @@ sub_b: # sub b needs to do calculations and return val
     move $s3, $a0
     # jal findLength
     jal exponent
-    # jal charcheck
+    # after num calculation we come here
     
 
     # sum is stored in v1
@@ -74,6 +74,7 @@ charcheck:
        lb $s0 0($a0) # we need to know length of string to do calculations also need to account for trailing whitespace
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
        beq $s0, 59, exitStack
+       beq $s0, 10, exitStack
        blt $s0, 48, codetesting
        ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
 
@@ -190,7 +191,7 @@ skip:
 print:
 
     beq $v1, 0, errorMessage
-    bgt $v1, 837930, errorMessage
+    bgt $v1, 837930, errorMessage # 837930 is max number if base is 30
     li $v0, 1
     addi $a0, $v1, 0
     syscall

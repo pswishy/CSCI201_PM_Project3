@@ -15,6 +15,7 @@ main:
       la $t9, userInput
       li $t3, 30
       li $t7, 4
+      li $s2, 0
 
 
 # t0 has num of subtrings
@@ -40,7 +41,7 @@ LeadingWhiteSpaceCounter:
 tabOrSpaceCharFound:
       # if it is a tab or space char and len $t0 is 0 then we want to ignore because it is a leading whitespace 
       beq $t0, 0 LeadingWhiteSpaceCounter
-      bgt $t0, 0,  # if t0 equals 0 leading whitespace dont update length of userinput string
+      # bgt $t0, 0,  # if t0 equals 0 leading whitespace dont update length of userinput string
       
 subStringFound:
 
@@ -81,6 +82,8 @@ charcheck:
     # add $t2, $t2, 1 # everytime we get charcater add 1 to length of substring
        beq $s0, 59, exitStack
        beq $s0, 10, exitStack
+       beq $s2, $t0, exitStack # we
+       # beq $s2, 0, exit
 
        blt $s0, 48, errorMessage
        ble $s0, 57, numCalc # 57 = '9' in ascii. if char <= 57 add it to sum
@@ -158,6 +161,7 @@ exponent0:
       # j print
 increment:
       addi $s3, $s3, 1 # increment byte address
+      addi $s2, $s2, 1
       j charcheck
 
 findLength:
@@ -207,14 +211,17 @@ print:
     add $sp, $sp, $s4
     # jr $ra
     
+    # beq $t9, 59, printComma
     add $t9,$t9, 1 # add two to string to calculate next substring
-    li $t0, 0 # reset length of string to 0
-    li $t8, 0 # reset sum variable
-    lb $t6, 0($t9)
-    beq $t6, 10, exit
-    beq $t6, 0, exit
-
+      li $t0, 0 # reset length of string to 0
+      li $t8, 0 # reset sum variable
+      lb $t6, 0($t9)
+      beq $t6, 10, exit
+      beq $t6, 0, exit
+    # j exit
+    # li $s2, 0
     bne $t6, 10, printComma
+      # beq $t6, 32, exit
     # beq $t6, 59, while
     
 
@@ -222,6 +229,12 @@ printComma:
        li $v0, 4
        la $a0, comma
        syscall
+       # add $t9,$t9, 1 # add two to string to calculate next substring
+    # li $t0, 0 # reset length of string to 0
+    # li $t8, 0 # reset sum variable
+    # lb $t6, 0($t9)
+    # beq $t6, 10, exit
+    # beq $t6, 0, exit
 
 
     j while

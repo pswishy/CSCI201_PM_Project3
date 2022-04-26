@@ -207,6 +207,14 @@ print:
     add $t9,$t9, 1 # add two to string to calculate next substring
     li $t0, 0 # reset length of string to 0
     li $t8, 0 # reset sum variable
+    lb $t6, 0($t9)
+    bne $t6, 10, printComma
+    j while
+
+printComma:
+       li $v0, 4
+       la $a0, comma
+       syscall
 
 
     j while

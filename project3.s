@@ -3,6 +3,7 @@
 userInput:  .space 1001 # allow user to input string of 1000 characters
 string: .asciiz "Not recognized"
 testing: .asciiz "testing"
+comma: .asciiz ","
 .text
 main: 
       #-----------------------
@@ -206,7 +207,7 @@ print:
     add $t9,$t9, 1 # add two to string to calculate next substring
     li $t0, 0 # reset length of string to 0
     li $t8, 0 # reset sum variable
-    
+
 
     j while
 errorMessage:
